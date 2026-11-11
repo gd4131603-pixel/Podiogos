@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12141a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Meus Jogos</title>
+<style>
+:root{--bg:#12141a;--sf:#1b1e27;--sf2:#252936;--tx:#eceef5;--mu:#9097ab;--ac:#8d98ff;--on:#12141a;--ok:#5fd6a0;--md:#f0c65c;--lo:#f08a7a;color-scheme:dark}
+:root[data-theme=light]{--bg:#f5f6fa;--sf:#fff;--sf2:#e9ebf2;--tx:#191c26;--mu:#6a7185;--ac:#4a58e0;--on:#fff;--ok:#19935f;--md:#a97a00;--lo:#c2412e;color-scheme:light}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+button,input,select{font:inherit;color:inherit}
+button{border:0;background:var(--sf2);padding:10px 14px;border-radius:12px;cursor:pointer}
+button.p{background:var(--ac);color:var(--on);font-weight:600}
+button.d{color:var(--lo)}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between}
+h1{font-size:22px;margin:0;letter-spacing:-.4px}
+.sub{color:var(--mu);font-size:13px}
+.ib{width:40px;height:40px;padding:0;border-radius:50%;font-size:18px}
+.fl{display:flex;gap:8px;padding:0 16px 12px;overflow-x:auto}
+.fl select{background:var(--sf);border:1px solid var(--sf2);border-radius:10px;padding:8px 10px;min-width:0;flex:1}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:4px 16px 110px}
+@media(min-width:600px){.grid{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--sf);border-radius:14px;overflow:hidden;cursor:pointer;position:relative}
+.cv{aspect-ratio:3/4;width:100%;object-fit:cover;display:block;background:var(--sf2)}
+.nt{position:absolute;top:8px;right:8px;background:var(--bg);font-weight:700;border-radius:10px;padding:3px 8px;font-size:14px}
+.ci{padding:9px 11px 11px}.ci b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ok{color:var(--ok)}.md{color:var(--md)}.lo{color:var(--lo)}
+.empty{grid-column:1/-1;text-align:center;color:var(--mu);padding:60px 20px}
+.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));height:54px;padding:0 22px;border-radius:27px;font-size:16px;box-shadow:0 6px 20px #0006}
+.ov{position:fixed;inset:0;background:#0009;z-index:10;display:none;align-items:flex-end}
+.ov.on{display:flex}
+.sh{background:var(--bg);width:100%;max-height:94%;overflow-y:auto;border-radius:22px 22px 0 0;padding:18px 16px calc(24px + env(safe-area-inset-bottom));animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.sh{animation:none}}
+.sh h2{margin:0 0 14px;font-size:20px}
+label{display:block;margin:12px 0 6px;color:var(--mu);font-size:13px}
+input[type=text],input[type=date]{width:100%;background:var(--sf);border:1px solid var(--sf2);border-radius:12px;padding:12px}
+input[type=range]{width:100%;accent-color:var(--ac)}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.strip{display:flex;gap:8px;overflow-x:auto;padding:6px 0}
+.strip img{height:70px;border-radius:8px;border:2px solid transparent;flex:none}
+.strip img.sel{border-color:var(--ac)}
+.cp{width:90px;aspect-ratio:3/4;object-fit:cover;border-radius:10px;background:var(--sf2)}
+.th{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.th div{position:relative}.th img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:10px;display:block}
+.th i{position:absolute;top:4px;right:4px;background:#000a;color:#fff;border-radius:50%;width:22px;height:22px;text-align:center;font-style:normal;line-height:22px}
+.big{font-size:34px;font-weight:700}
+.opt{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--sf2)}
+#vw img{max-width:100%;max-height:100%}
+#vw{align-items:center;justify-content:center;background:#000e}
+.hint{color:var(--mu);font-size:12px;margin-top:6px}
+</style>
+</head>
+<body>
+<header><div><h1>Meus Jogos</h1><div class="sub" id="cnt"></div></div><button class="ib" id="gear" aria-label="Opções">⚙</button></header>
+<div class="fl">
+<select id="fy" aria-label="Ano"></select>
+<select id="fm" aria-label="Mês"></select>
+<select id="fs" aria-label="Ordenar"><option value="new">Mais recentes</option><option value="old">Mais antigos</option><option value="high">Maior nota</option><option value="low">Menor nota</option></select>
+</div>
+<main class="grid" id="g"></main>
+<button class="p fab" id="add">+ Adicionar</button>
+<div class="ov" id="ov"><div class="sh" id="sh"></div></div>
+<div class="ov" id="vw"></div>
+<script>
+const $=s=>document.querySelector(s),MES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+let games=[],F={y:'',m:'',s:'new'},cur=null;
+// ---------- storage ----------
+const dbp=new Promise((r,j)=>{const q=indexedDB.open('meusjogos',1);q.onupgradeneeded=()=>q.result.createObjectStore('g',{keyPath:'id'});q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)});
+const tx=async(m,f)=>{const d=await dbp;return new Promise((res,rej)=>{const t=d.transaction('g',m),r=f(t.objectStore('g'));t.oncomplete=()=>res(r.result);t.onerror=()=>rej(t.error)})};
+const load=async()=>{games=await tx('readonly',s=>s.getAll())};
+const save=g=>tx('readwrite',s=>s.put(g));
+const rm=id=>tx('readwrite',s=>s.delete(id));
+// ---------- tema ----------
+const getT=()=>{try{return localStorage.getItem('tema')||'dark'}catch(e){return'dark'}};
+const setT=t=>{document.documentElement.dataset.theme=t;try{localStorage.setItem('tema',t)}catch(e){}document.querySelector('meta[name=theme-color]').content=t==='dark'?'#12141a':'#f5f6fa'};
+setT(getT());
+// ---------- util ----------
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cls=n=>n>=8?'ok':n>=6?'md':'lo';
+const fd=d=>d?MES[+d.slice(5,7)-1].slice(0,3)+'/'+d.slice(0,4):'';
+const fall=e=>{const i=e.target;if(i.src.includes('library_600x900')){i.src=i.src.replace('library_600x900','header')}};
+const shrink=(file,max)=>new Promise(res=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.72))};im.src=u});
+const pick=(multi)=>new Promise(res=>{const i=document.createElement('input');i.type='file';i.accept='image/*';i.multiple=!!multi;i.onchange=()=>res([...i.files]);i.click()});
+// ---------- capas (Steam) ----------
+async function steam(term){
+  const u='https://store.steampowered.com/api/storesearch/?cc=br&l=portuguese&term='+encodeURIComponent(term);
+  const tries=[u,'https://corsproxy.io/?'+encodeURIComponent(u),'https://api.allorigins.win/raw?url='+encodeURIComponent(u)];
+  for(const t of tries){try{const r=await fetch(t);if(!r.ok)continue;const j=await r.json();return(j.items||[]).slice(0,6).map(i=>({id:i.id,name:i.name}))}catch(e){}}
+  return null;
+}
+const capa=id=>'https://cdn.akamai.steamstatic.com/steam/apps/'+id+'/library_600x900.jpg';
+// ---------- lista ----------
+function render(){
+  const yrs=[...new Set(games.map(g=>g.date.slice(0,4)))].sort().reverse();
+  $('#fy').innerHTML='<option value="">Todos os anos</option>'+yrs.map(y=>`<option ${F.y===y?'selected':''}>${y}</option>`).join('');
+  $('#fm').innerHTML='<option value="">Todos os meses</option>'+MES.map((m,i)=>{const v=String(i+1).padStart(2,'0');return`<option value="${v}" ${F.m===v?'selected':''}>${m}</option>`}).join('');
+  $('#fs').value=F.s;
+  let l=games.filter(g=>(!F.y||g.date.slice(0,4)===F.y)&&(!F.m||g.date.slice(5,7)===F.m));
+  const by={new:(a,b)=>b.date.localeCompare(a.date),old:(a,b)=>a.date.localeCompare(b.date),high:(a,b)=>b.rating-a.rating||b.date.localeCompare(a.date),low:(a,b)=>a.rating-b.rating||b.date.localeCompare(a.date)};
+  l.sort(by[F.s]);
+  $('#cnt').textContent=l.length+(l.length===1?' jogo':' jogos');
+  $('#g').innerHTML=l.length?l.map(g=>`<div class="card" data-id="${g.id}"><img class="cv" loading="lazy" alt="" src="${esc(g.cover||'')}"><span class="nt ${cls(g.rating)}">${g.rating}</span><div class="ci"><b>${esc(g.name)}</b><span class="sub">${fd(g.date)}</span></div></div>`).join(''):`<div class="empty">${games.length?'Nenhum jogo nesse filtro.':'Nenhum jogo ainda.<br>Toque em Adicionar para registrar o primeiro.'}</div>`;
+  document.querySelectorAll('.cv').forEach(i=>i.onerror=fall);
+}
+$('#fy').onchange=e=>{F.y=e.target.value;render()};$('#fm').onchange=e=>{F.m=e.target.value;render()};$('#fs').onchange=e=>{F.s=e.target.value;render()};
+$('#g').onclick=e=>{const c=e.target.closest('.card');if(c)detail(c.dataset.id)};
+// ---------- sheets ----------
+const open=h=>{$('#sh').innerHTML=h;$('#ov').classList.add('on')};
+const close=()=>$('#ov').classList.remove('on');
+$('#ov').onclick=e=>{if(e.target.id==='ov')close()};
+$('#vw').onclick=()=>$('#vw').classList.remove('on');
+function detail(id){
+  const g=games.find(x=>x.id===id);if(!g)return;
+  open(`<div class="row" style="align-items:flex-start"><img class="cp" src="${esc(g.cover||'')}" alt="" style="flex:none;width:110px"><div><h2 style="margin-bottom:6px">${esc(g.name)}</h2><div class="big ${cls(g.rating)}">${g.rating}<span class="sub">/10</span></div><div class="sub">Terminei em ${MES[+g.date.slice(5,7)-1]} de ${g.date.slice(0,4)}</div></div></div>
+  ${g.shots.length?`<label>Prints</label><div class="th">${g.shots.map((s,i)=>`<div><img data-i="${i}" src="${s}" alt=""></div>`).join('')}</div>`:''}
+  <div class="row" style="margin-top:20px"><button id="ed">Editar</button><button class="d" id="dl">Excluir</button></div>`);
+  $('.cp').onerror=fall;
+  document.querySelectorAll('.th img').forEach(i=>i.onclick=()=>{$('#vw').innerHTML=`<img src="${g.shots[i.dataset.i]}" alt="">`;$('#vw').classList.add('on')});
+  $('#ed').onclick=()=>form(g);
+  $('#dl').onclick=async()=>{if(confirm('Excluir "'+g.name+'"?')){await rm(g.id);await load();close();render()}};
+}
+function form(g){
+  cur=g?JSON.parse(JSON.stringify(g)):{id:crypto.randomUUID(),name:'',rating:8,date:new Date().toISOString().slice(0,10),cover:'',shots:[]};
+  open(`<h2>${g?'Editar jogo':'Novo jogo'}</h2>
+  <label>Nome do jogo</label><input type="text" id="fn" value="${esc(cur.name)}" placeholder="Ex: Hollow Knight" autocomplete="off">
+  <div class="row" style="align-items:center;margin-top:10px"><div style="flex:none;width:90px"><img class="cp" id="cpv" alt="" ${cur.cover?`src="${esc(cur.cover)}"`:''}></div>
+  <div><button id="fb" style="width:100%">Buscar capa na Steam</button><button id="fu" style="width:100%;margin-top:8px">Usar minha imagem</button></div></div>
+  <div class="strip" id="fr"></div><div class="hint" id="fh"></div>
+  <label>Nota: <b id="rv"></b></label><input type="range" id="fr2" min="0" max="10" step="0.5" value="${cur.rating}">
+  <label>Terminei em</label><input type="date" id="fdt" value="${cur.date}">
+  <label>Prints</label><div class="th" id="ths"></div><button id="fp" style="margin-top:8px;width:100%">+ Adicionar prints</button>
+  <div class="row" style="margin-top:22px"><button id="cx">Cancelar</button><button class="p" id="sv">Salvar</button></div>`);
+  const sy=()=>{$('#rv').textContent=cur.rating;$('#rv').className=cls(cur.rating);$('#ths').innerHTML=cur.shots.map((s,i)=>`<div><img src="${s}" alt=""><i data-i="${i}">×</i></div>`).join('');document.querySelectorAll('#ths i').forEach(x=>x.onclick=()=>{cur.shots.splice(x.dataset.i,1);sy()})};sy();
+  $('#cpv').onerror=fall;
+  $('#fr2').oninput=e=>{cur.rating=+e.target.value;sy()};
+  const find=async()=>{const n=$('#fn').value.trim();if(!n)return;$('#fh').textContent='Buscando capa…';const r=await steam(n);
+    if(!r){$('#fh').textContent='Não consegui buscar agora (sem internet?). Use "Usar minha imagem".';return}
+    if(!r.length){$('#fh').textContent='Nenhuma capa encontrada. Use "Usar minha imagem".';return}
+    $('#fh').textContent='Toque na capa certa:';
+    $('#fr').innerHTML=r.map((x,i)=>`<img data-id="${x.id}" title="${esc(x.name)}" src="https://cdn.akamai.steamstatic.com/steam/apps/${x.id}/header.jpg" alt="">`).join('');
+    const choose=id=>{cur.cover=capa(id);$('#cpv').src=cur.cover;document.querySelectorAll('#fr img').forEach(i=>i.classList.toggle('sel',i.dataset.id==id))};
+    document.querySelectorAll('#fr img').forEach(i=>i.onclick=()=>choose(i.dataset.id));choose(r[0].id)};
+  $('#fb').onclick=find;
+  $('#fn').onchange=()=>{if(!cur.cover)find()};
+  $('#fu').onclick=async()=>{const[f]=await pick(false);if(f){cur.cover=await shrink(f,600);$('#cpv').src=cur.cover}};
+  $('#fp').onclick=async()=>{for(const f of await pick(true))cur.shots.push(await shrink(f,1100));sy()};
+  $('#cx').onclick=close;
+  $('#sv').onclick=async()=>{cur.name=$('#fn').value.trim();cur.date=$('#fdt').value;if(!cur.name)return alert('Digite o nome do jogo.');if(!cur.date)return alert('Escolha a data de término.');await save(cur);await load();close();render()};
+}
+$('#add').onclick=()=>form();
+// ---------- opções ----------
+$('#gear').onclick=()=>{
+  open(`<h2>Opções</h2>
+  <div class="opt"><span>Modo claro</span><input type="checkbox" id="tm" ${getT()==='light'?'checked':''} style="width:22px;height:22px;accent-color:var(--ac)"></div>
+  <div class="opt"><span>Exportar backup</span><button id="ex">Exportar</button></div>
+  <div class="opt"><span>Importar backup</span><button id="im">Importar</button></div>
+  <div class="hint">Os dados ficam salvos só neste aparelho. Faça backup de vez em quando.</div>
+  <button style="width:100%;margin-top:18px" id="cl">Fechar</button>`);
+  $('#tm').onchange=e=>setT(e.target.checked?'light':'dark');
+  $('#cl').onclick=close;
+  $('#ex').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(games)],{type:'application/json'}));a.download='meus-jogos-backup.json';a.click()};
+  $('#im').onclick=async()=>{const[f]=await pick(false).catch(()=>[]);};
+  $('#im').onclick=()=>{const i=document.createElement('input');i.type='file';i.accept='.json,application/json';i.onchange=async()=>{try{const a=JSON.parse(await i.files[0].text());for(const g of a)if(g.id&&g.name)await save(g);await load();close();render()}catch(e){alert('Arquivo inválido.')}};i.click()};
+};
+// ---------- start ----------
+load().then(render);
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
